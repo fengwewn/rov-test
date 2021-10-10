@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>NightCrystal Controller</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@1.1.6/joy.min.js"></script>
+
+  <div style='display: flex;'>
+    <div id="turnJoy" style="width:200px; height:200px; margin:auto; text-align:center;">
+      <font size=20>Turning</font>
+    </div>
+    <div id="forwardJoy" style="width:200px; height:200px; margin:auto; text-align:center;">
+      <font size=20>Forward</font>
+    </div>
+  </div>
+
+  <div>
+    <p id="turn"></p>
+    <p id="forward"></p>
+  </div>
+
+  <script type="text/javascript">
+    var turnJoy = new JoyStick('turnJoy');
+    var forwardJoy = new JoyStick('forwardJoy');
+
+    let turnOut = document.getElementById("turn");
+    let forwardOut = document.getElementById("forward");
+    setInterval(function() {
+      turnOut.innerHTML = "Turn: " + turnJoy.GetPosX();
+    }, 50);
+    setInterval(function() {
+      forwardOut.innerHTML = "Forward: " + forwardJoy.GetPosY();
+    }, 50);
+
+    // Do websocket stuff
+    // NightCrystal <--> NPM Websocket <--> Controller
+  </script>
+
+</body>
+
+</html>

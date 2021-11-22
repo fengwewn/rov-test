@@ -6,7 +6,7 @@ const url = require('url');
 class WebSocketManager {
 
     #server;
-    #nightCrystal;
+    #proJectHAWS;
     #controllers;
     constructor(server) {
         this.server = server;
@@ -46,15 +46,15 @@ class WebSocketManager {
                         ws.on('message', (msg) => {
                             //this.processMessage(subscriber, msg);
                             console.log("REV: " + msg);
-                            this.toNightCrystal(msg);
+                            this.toProJectHAWS(msg);
 
                             let jsonObj = JSON.parse(msg);
                         });
                     }
 
-                    if(type == "nightCrystal") {
+                    if(type == "project_haws") {
 
-                        this.nightCrystal = ws;
+                        this.proJectHAWS = ws;
 
                     }
                 });
@@ -71,9 +71,9 @@ class WebSocketManager {
 
     }
 
-    toNightCrystal(msg) {
-        if(this.nightCrystal != null) {
-            this.nightCrystal.send(msg);
+    toProJectHAWS(msg) {
+        if(this.proJectHAWS != null) {
+            this.proJectHAWS.send(msg);
         }
     }
 

@@ -5,9 +5,9 @@
     "rfr": "^1.2.3",
     "ws": "^8.2.3"
   },
-  "name": "codeat3am",
+  "name": "ProJectHAWS-Node",
   "version": "1.0.0",
-  "description": "Websocket server for CODE@3AM",
+  "description": "Websocket server for ProJect HAWS",
   "main": "start.js",
   "devDependencies": {},
   "scripts": {

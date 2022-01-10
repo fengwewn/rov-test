@@ -3,25 +3,88 @@
 
 <head>
   <meta charset="utf-8">
-  <title>NightCrystal Controller</title>
+  <title>ProJect HAWS Controller</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@1.1.6/joy.min.js"></script>
 
   <div style='display: flex;'>
     <div id="turnJoy" style="width:200px; height:200px; margin:auto; text-align:center;">
       <font size=20>Turning</font>
     </div>
+
+    <div style='width:40%;'>
+      <div style='display: flex'>
+        <!-- Speed Controller -->
+        <div class="swiper turnGearSwiper" style="height:80px; width:40%; border: 2px; border-style: solid; margin-top: 5%">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">Gear 1 (25%)</div>
+            <div class="swiper-slide">Gear 2 (50%)</div>
+            <div class="swiper-slide">Gear 3 (75%)</div>
+            <div class="swiper-slide">Gear 4 (100%)</div>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+        <div class="swiper forwardGearSwiper" style="height:80px; width:40%; border: 2px; border-style: solid; margin-top: 5%">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">Gear 1 (25%)</div>
+            <div class="swiper-slide">Gear 2 (50%)</div>
+            <div class="swiper-slide">Gear 3 (75%)</div>
+            <div class="swiper-slide">Gear 4 (100%)</div>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+
+      <div style='display:flex; margin-top: 10%;'>
+        <span style='width:55%;'>
+          <font>Lifter</font>
+          <input id="objShipper" type="range" min="0" max="100" value="50" class="slider" id="myRange">
+        </span>
+
+        <span style='margin-left: 20px; width: 30%'>
+          <font>LEDs Control</font>
+          <div>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="switch-slider red"></span>
+            </label>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="switch-slider green"></span>
+            </label>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="switch-slider blue"></span>
+            </label>
+          </div>
+        </span>
+
+        <span style='margin-left: 5px; width: 25%'>
+          <font>Path Finder</font>
+          <div>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <span>
+      </div>
+
+    </div>
+
     <div id="forwardJoy" style="width:200px; height:200px; margin:auto; text-align:center;">
       <font size=20>Forward</font>
     </div>
   </div>
 
-  <div>
-    Turn: <p id="turn"></p>
-    Forward: <p id="forward"></p>
+  <div style='position: absolute; bottom: 0px;' id='stats'>
+    Server connecting...
   </div>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@1.1.6/joy.min.js"></script>
 
   <script type="text/javascript">
     let endPoint = "wss://sites.google.com/view/juneer2021fall/websocket/?type=controller";
@@ -37,25 +100,89 @@
     let ws = new WebSocket(endPoint)
 
     ws.onopen = () => {
-      console.log('open connection')
+      console.log('Connected to NodeJS server: ' + endPoint);
+
+      startWSfunction();
     }
 
     ws.onclose = () => {
-      console.log('close connection')
+      console.log('Connection lost.');
     }
 
-    setInterval(function() {
-      if (turnOut.innerHTML != turnJoy.GetX()) {
-        ws.send('{"action":"updateJoyStick", "stick":"turn", "data":' + turnJoy.GetX() + '}');
+    let turn = -1;
+    let turnGear = 25;
+    let forward = -1;
+    let forwardGear = 25;
+
+    let objShipper = -1;
+    let ledR = false;
+    let ledG = false;
+    let ledB = false;
+
+    let pathFinder = false;
+
+    function startWSfunction() {
+
+      let statsEle = document.getElementById("stats");
+      let objShipperEle = document.getElementById("objShipper");
+
+      setInterval(function() {
+
+        if (turn != turnJoy.GetX()) {
+          turn = turnJoy.GetX();
+          ws.send('{"action":"updateJoyStick", "stick":"turn", "data":' + turn * turnGear / 100 + '}');
+        }
+
+        if (forward != forwardJoy.GetY()) {
+          forward = forwardJoy.GetY();
+          ws.send('{"action":"updateJoyStick", "stick":"forward", "data":' + forward * forwardGear / 100 + '}');
+        }
+
+        if (objShipper != objShipperEle.value) {
+          objShipper = objShipperEle.value;
+          ws.send('{"action":"updateObjShipper", "data":' + objShipper + '}');
+        }
+
+        statsEle.innerHTML = "Turn: " + turn + ", Forward: " + forward + ", Lifter:" + objShipper;
+
+      }, 50);
+
+      setInterval(function() {
+        ws.send('{"action":"heartbeat"}');
+      }, 1000 * 60);
+    }
+  </script>
+
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+  <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
+
+  <script>
+    let turnGearSwiper = new Swiper(".turnGearSwiper", {
+      direction: "vertical",
+      pagination: {
+        el: ".swiper-pagination",
+        type: "progressbar",
       }
-      turnOut.innerHTML = turnJoy.GetX();
-    }, 50);
-    setInterval(function() {
-      if (forwardOut.innerHTML != forwardJoy.GetY()) {
-        ws.send('{"action":"updateJoyStick", "stick":"forward", "data":' + forwardJoy.GetY() + '}');
+    });
+
+    turnGearSwiper.on('slideChange', function(swiper) {
+      turnGear = (swiper.activeIndex + 1) * 25;
+      //ws.send('{"action":"changeTurnGear", "data":' + turnGear + '}');
+    });
+
+    let forwardGearSwiper = new Swiper(".forwardGearSwiper", {
+      direction: "vertical",
+      pagination: {
+        el: ".swiper-pagination",
+        type: "progressbar",
       }
-      forwardOut.innerHTML = forwardJoy.GetY();
-    }, 50);
+    });
+
+    forwardGearSwiper.on('slideChange', function(swiper) {
+      forwardGear = (swiper.activeIndex + 1) * 25;
+      //ws.send('{"action":"updateJoyStick", data":' + forwardGear + '}');
+    });
   </script>
 
 </body>
